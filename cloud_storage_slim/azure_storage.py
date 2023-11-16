@@ -13,11 +13,13 @@ class AzureStorage(CloudStorage):
         azure_logger = logging.getLogger("azure")
         azure_logger.setLevel(logging.WARNING)
 
-        storageaccountname = os.environ.get("AZURE_STORAGE_ACCOUNT_NAME")
-        account_url = f"https://{storageaccountname}.blob.core.windows.net"
-        default_credential = self.azure_identity.DefaultAzureCredential()
-        self.blob_service_client = self.azure_storage_blob.BlobServiceClient(
-            account_url, credential=default_credential
+        az_account_name = os.environ.get("AZURE_STORAGE_ACCOUNT_NAME")
+        az_account_key = os.environ.get("AZURE_STORAGE_ACCOUNT_KEY")
+        connection_string = f"DefaultEndpointsProtocol=https;AccountName={az_account_name};AccountKey={az_account_key};EndpointSuffix=core.windows.net"
+        self.blob_service_client = (
+            self.azure_storage_blob.BlobServiceClient.from_connection_string(
+                connection_string
+            )
         )
 
     def download(self, container_name, remote_blob_path, local_blob_path):
