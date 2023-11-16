@@ -2,13 +2,28 @@
 
 ## Principles
 
-- No complex operations, just basic operations.
-- Follow rclone naming conventions.
+- No complex operations, just focus on simple things.
+- Inspired by [rclone](https://rclone.org/).
+
+## Installation
+
+```bash
+pip install cloud-storage-slim
+```
+
+## Usage
+
+```python
+from cloud_storage_slim import CloudStorageSlim
+
+cloud_storage = CloudStorageSlim()
+cloud_storage.copyto('gs://bucket1/object1', 'az://bucket2/object2')
+```
 
 ## Features
 
 - [copyto](https://rclone.org/commands/rclone_copyto/)
-- [copy](https://rclone.org/commands/rclone_copy/)
+- [ls](https://rclone.org/commands/rclone_ls/)
 
 ## Supported Cloud Storage
 
@@ -30,7 +45,8 @@ pip install google-cloud-storage
 
 ### Azure Blob Storage
 
-- [Sign in and connect your app code to Azure using DefaultAzureCredential](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-python?tabs=managed-identity%2Croles-azure-portal%2Csign-in-azure-cli#sign-in-and-connect-your-app-code-to-azure-using-defaultazurecredential)
+- [Manage storage account access keys
+](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-keys-manage?tabs=azure-portal#view-account-access-keys)
 - `AZURE_STORAGE_ACCOUNT_NAME`, `AZURE_STORAGE_ACCOUNT_KEY`
 
 ```bash
@@ -46,3 +62,7 @@ pip install azure-storage-blob azure-identity
 ```bash
 pip install oss2
 ```
+
+## Test cases
+
+**before run test cases, you need to prepare the test bucket.**
