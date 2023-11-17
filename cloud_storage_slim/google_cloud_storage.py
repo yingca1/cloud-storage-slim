@@ -23,7 +23,8 @@ class GoogleCloudStorage(CloudStorage):
         bucket = self.storage_client.get_bucket(bucket_name)
         blobs = bucket.list_blobs(prefix=pattern)
         blobs_list = list(blobs)
-        return blobs_list
+        blobs_list_names = [blob.name for blob in blobs_list]
+        return blobs_list_names
 
     def get_first_blob(self, bucket_name, pattern):
         bucket = self.storage_client.get_bucket(bucket_name)

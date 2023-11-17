@@ -41,7 +41,8 @@ class AzureStorage(CloudStorage):
     def list_blobs(self, container_name, pattern):
         container_client = self.blob_service_client.get_container_client(container_name)
         blobs_list = list(container_client.list_blobs(name_starts_with=pattern))
-        return blobs_list
+        blobs_list_names = [blob.name for blob in blobs_list]
+        return blobs_list_names
 
     def get_first_blob(self, container_name, pattern):
         container_client = self.blob_service_client.get_container_client(container_name)
