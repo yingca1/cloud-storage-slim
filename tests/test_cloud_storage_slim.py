@@ -1,18 +1,29 @@
 import os
 import random
 import unittest
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from cloud_storage_slim import CloudStorageSlim
 
 
 class TestCloudStorageSlim(unittest.TestCase):
     def get_gs_test_file_path_prefix(self, prefix=""):
-        return os.path.join("gs://<gs-test-bucket>", prefix)
+        test_bucket_gs = os.environ.get("TEST_BUCKET_GS")
+        return os.path.join(f"gs://{test_bucket_gs}", prefix)
+
+    def get_s3_test_file_path_prefix(self, prefix=""):
+        test_bucket_s3 = os.environ.get("TEST_BUCKET_S3")
+        return os.path.join(f"s3://{test_bucket_s3}", prefix)
 
     def get_az_test_file_path_prefix(self, prefix=""):
-        return os.path.join("az://<az-test-container>", prefix)
+        test_bucket_az = os.environ.get("TEST_BUCKET_AZ")
+        return os.path.join(f"az://{test_bucket_az}", prefix)
 
     def get_oss_test_file_path_prefix(self, prefix=""):
-        return os.path.join("oss://<oss-test-bucket>", prefix)
+        test_bucket_oss = os.environ.get("TEST_BUCKET_OSS")
+        return os.path.join(f"oss://{test_bucket_oss}", prefix)
 
     def get_local_test_file_path_prefix(self, prefix=""):
         return os.path.join(self.test_working_dir, prefix)
@@ -60,11 +71,23 @@ class TestCloudStorageSlim(unittest.TestCase):
             )
             self.cloud_storage_slim.copyto(self.test_file_path, remote_file_path)
             return remote_file_path
+        elif scheme == "s3":
+            local_file_path = os.path.join(
+                self.get_local_test_file_path_prefix(), file_name
+            )
+            self.create_local_file(local_file_path, file_content)
+            remote_file_path = os.path.join(
+                self.get_s3_test_file_path_prefix(), file_name
+            )
+            self.cloud_storage_slim.copyto(self.test_file_path, remote_file_path)
+            return remote_file_path
 
     def get_dest_test_file_path(self, scheme, source, dest):
         path_prefix = ""
         if scheme == "gs":
             path_prefix = self.get_gs_test_file_path_prefix()
+        elif scheme == "s3":
+            path_prefix = self.get_s3_test_file_path_prefix()
         elif scheme == "az":
             path_prefix = self.get_az_test_file_path_prefix()
         elif scheme == "oss":
@@ -98,11 +121,17 @@ class TestCloudStorageSlim(unittest.TestCase):
     def test_copyto_local_to_remote(self):
         source_path = self.test_file_path
         dest_path_gs = self.get_dest_test_file_path("gs", "local", "gs")
+        dest_path_s3 = self.get_dest_test_file_path("s3", "local", "s3")
         dest_path_az = self.get_dest_test_file_path("az", "local", "az")
         dest_path_oss = self.get_dest_test_file_path("oss", "local", "oss")
         # gs
         self.cloud_storage_slim.copyto(source_path, dest_path_gs)
         list_blobs = self.cloud_storage_slim.ls(dest_path_gs)
+        self.assertEqual(len(list_blobs), 1)
+        
+        # s3
+        self.cloud_storage_slim.copyto(source_path, dest_path_s3)
+        list_blobs = self.cloud_storage_slim.ls(dest_path_s3)
         self.assertEqual(len(list_blobs), 1)
 
         # az
@@ -125,6 +154,11 @@ class TestCloudStorageSlim(unittest.TestCase):
         list_blobs = self.cloud_storage_slim.ls(dest_path_gs_az)
         self.assertEqual(len(list_blobs), 1)
 
+        dest_path_gs_s3 = self.get_dest_test_file_path("s3", "gs", "s3")
+        self.cloud_storage_slim.copyto(source_path_gs, dest_path_gs_s3)
+        list_blobs = self.cloud_storage_slim.ls(dest_path_gs_s3)
+        self.assertEqual(len(list_blobs), 1)
+
         dest_path_gz_oss = self.get_dest_test_file_path("oss", "gs", "oss")
         self.cloud_storage_slim.copyto(source_path_gs, dest_path_gz_oss)
         list_blobs = self.cloud_storage_slim.ls(dest_path_gz_oss)
@@ -142,12 +176,17 @@ class TestCloudStorageSlim(unittest.TestCase):
 
     def test_copyto_remote_to_local(self):
         source_path_gs = self.create_remote_file("gs")
+        source_path_s3 = self.create_remote_file("s3")
         source_path_az = self.create_remote_file("az")
         source_path_oss = self.create_remote_file("oss")
 
         dest_path_gz_local = self.get_dest_test_file_path("local", "gs", "local")
         self.cloud_storage_slim.copyto(source_path_gs, dest_path_gz_local)
         self.assertTrue(os.path.exists(dest_path_gz_local))
+
+        dest_path_s3_local = self.get_dest_test_file_path("local", "s3", "local")
+        self.cloud_storage_slim.copyto(source_path_s3, dest_path_s3_local)
+        self.assertTrue(os.path.exists(dest_path_s3_local))        
 
         dest_path_az_local = self.get_dest_test_file_path("local", "az", "local")
         self.cloud_storage_slim.copyto(source_path_az, dest_path_az_local)

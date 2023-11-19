@@ -35,6 +35,7 @@ class CloudStorageSlim:
         self.gcs_client = None
         self.az_client = None
         self.oss_client = None
+        self.s3_client = None
 
     def _setup_tmp_workspace(self):
         tmp_workspace_folder_path = os.path.join(
@@ -70,6 +71,12 @@ class CloudStorageSlim:
 
                 self.oss_client = AlibabaCloudOSS()
             return self.oss_client
+        elif scheme == "s3":
+            if self.s3_client is None:
+                from .amazon_s3 import AmazonS3Storage
+
+                self.s3_client = AmazonS3Storage()
+            return self.s3_client
         else:
             raise ValueError(f"Unknown scheme: {scheme}")
 
