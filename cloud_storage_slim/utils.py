@@ -2,6 +2,10 @@ import os
 import re
 from urllib.parse import urlparse
 
+class InvalidPathError(Exception):
+    """Exception raised when the input path is invalid."""
+    pass
+
 
 def check_scheme(path_uri):
     path_scheme = urlparse(path_uri).scheme
@@ -18,8 +22,14 @@ def check_source_local_file(input_path):
 
 
 def check_dest_local_file(input_path):
-    if re.search(r'[<>:"|?*]', input_path):
-        return False
+    # Define invalid characters based on the operating system
+    if os.name == 'nt':  # Windows system
+        invalid_chars = r'[<>:"|?*]'
+    else:
+        invalid_chars = r'[\0/]'  # Unix/Linux systems usually only disallow null character and /
+
+    if re.search(invalid_chars, input_path):
+        raise InvalidPathError(f"Path contains invalid characters: {invalid_chars}")
 
     if input_path.startswith("file://"):
         input_path = urlparse(input_path).path
@@ -28,12 +38,15 @@ def check_dest_local_file(input_path):
     input_path = os.path.abspath(input_path)
 
     if os.path.isdir(input_path):
-        return False
+        raise InvalidPathError("The provided path is a directory, not a file")
 
     parent_dir = os.path.dirname(input_path)
 
-    if not os.path.exists(parent_dir) or not os.access(parent_dir, os.W_OK):
-        return False
+    if not os.path.exists(parent_dir):
+        raise InvalidPathError("The parent directory of the file does not exist")
+
+    if not os.access(parent_dir, os.W_OK):
+        raise InvalidPathError("The parent directory is not writable")
 
     return True
 
