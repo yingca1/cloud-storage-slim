@@ -5,10 +5,6 @@ from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
 
-class InvalidPathError(Exception):
-    """Exception raised when the input path is invalid."""
-    pass
-
 
 def check_scheme(path_uri):
     path_scheme = urlparse(path_uri).scheme
