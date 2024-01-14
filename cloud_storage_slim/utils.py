@@ -1,6 +1,9 @@
 import os
 import re
+import logging
 from urllib.parse import urlparse
+
+logger = logging.getLogger(__name__)
 
 class InvalidPathError(Exception):
     """Exception raised when the input path is invalid."""
@@ -22,31 +25,30 @@ def check_source_local_file(input_path):
 
 
 def check_dest_local_file(input_path):
-    # Define invalid characters based on the operating system
-    if os.name == 'nt':  # Windows system
-        invalid_chars = r'[<>:"|?*]'
-    else:
-        invalid_chars = r'[\0/]'  # Unix/Linux systems usually only disallow null character and /
-
-    if re.search(invalid_chars, input_path):
-        raise InvalidPathError(f"Path contains invalid characters: {invalid_chars}")
-
     if input_path.startswith("file://"):
         input_path = urlparse(input_path).path
 
-    input_path = os.path.expanduser(input_path)
-    input_path = os.path.abspath(input_path)
+    input_path = os.path.abspath(os.path.expanduser(input_path))
+
+    parent_dir, filename = os.path.split(input_path)
+
+    invalid_chars_pattern = r'[<>:"|?*\x00]' if os.name == 'nt' else r'[\x00]'
+
+    if re.search(invalid_chars_pattern, filename):
+        logger.info(f"filename: [{filename}] contains invalid characters: {invalid_chars_pattern}")
+        return False
 
     if os.path.isdir(input_path):
-        raise InvalidPathError("The provided path is a directory, not a file")
-
-    parent_dir = os.path.dirname(input_path)
+        logger.info(f"Path: [{input_path}] is a directory, not a file")
+        return False
 
     if not os.path.exists(parent_dir):
-        raise InvalidPathError("The parent directory of the file does not exist")
+        logger.info(f"The parent directory of Path: [{input_path}] does not exist")
+        return False
 
     if not os.access(parent_dir, os.W_OK):
-        raise InvalidPathError("The parent directory is not writable")
+        logger.info(f"The parent directory: [{parent_dir}] is not writable")
+        return False
 
     return True
 

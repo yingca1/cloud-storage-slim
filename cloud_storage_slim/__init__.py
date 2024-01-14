@@ -138,19 +138,25 @@ class CloudStorageSlim:
         limitaions: only support single file copy right now
         """
         if check_source_local_file(source_path):
-            # local to local
+            # source is local file
             if check_dest_local_file(dest_path):
+                # dest is local file
+                # local to local
                 shutil.copyfile(source_path, dest_path)
             else:
+                # dest is remote file
                 check_scheme(dest_path)
                 # local to remote
                 self._copy_local_to_remote(source_path, dest_path)
         else:
+            # source is remote file
             check_scheme(source_path)
             if check_dest_local_file(dest_path):
+                # dest is local file
                 # remote to local
                 self._copy_remote_to_local(source_path, dest_path)
             else:
+                # dest is remote file
                 check_scheme(dest_path)
                 # remote to remote
                 self._copy_remote_to_remote(source_path, dest_path, filter_options)
