@@ -6,10 +6,10 @@ class AmazonS3Storage(CloudStorage):
     def __init__(self):
         self.s3_client = boto3.client("s3")
 
-    def download(self, bucket_name, remote_blob_path, local_blob_path):
+    def download(self, bucket_name, remote_blob_path, local_blob_path, **kwargs):
         self.s3_client.download_file(bucket_name, remote_blob_path, local_blob_path)
 
-    def upload(self, bucket_name, local_blob_path, remote_blob_path):
+    def upload(self, bucket_name, local_blob_path, remote_blob_path, **kwargs):
         self.s3_client.upload_file(local_blob_path, bucket_name, remote_blob_path)
 
     def list_blobs(self, bucket_name, pattern):
@@ -19,3 +19,6 @@ class AmazonS3Storage(CloudStorage):
     def get_first_blob(self, bucket_name, pattern):
         blobs_list = self.list_blobs(bucket_name, pattern)
         return blobs_list[0] if blobs_list else None
+
+    def get_navite_client(self):
+        return self.s3_client

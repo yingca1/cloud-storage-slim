@@ -11,16 +11,19 @@ from cloud_storage_slim.utils import (
 
 
 class CloudStorage:
-    def download(self, bucket_name, remote_blob_path, local_blob_path):
+    def download(self, bucket_name, remote_blob_path, local_blob_path, **kwargs):
         raise NotImplementedError
 
-    def upload(self, bucket_name, local_blob_path, remote_blob_path):
+    def upload(self, bucket_name, local_blob_path, remote_blob_path, **kwargs):
         raise NotImplementedError
 
     def list_blobs(self, bucket_name, pattern):
         raise NotImplementedError
 
     def get_first_blob(self, bucket_name, pattern):
+        raise NotImplementedError
+
+    def get_navite_client(self):
         raise NotImplementedError
 
 
@@ -80,24 +83,27 @@ class CloudStorageSlim:
         else:
             raise ValueError(f"Unknown scheme: {scheme}")
 
+    def get_client(self, scheme):
+        return self._get_client(scheme).get_navite_client()
+
     def destroy(self):
         self._teardown_tmp_workspace()
         self.gcs_client = None
         self.az_client = None
         self.oss_client = None
 
-    def _copy_local_to_remote(self, source_path, dest_path):
+    def _copy_local_to_remote(self, source_path, dest_path, **kwargs):
         local_blob_path = os.path.abspath(source_path)
         scheme, bucket_name, blob_path = parse_path_uri(dest_path)
         client = self._get_client(scheme)
-        client.upload(bucket_name, local_blob_path, blob_path)
+        client.upload(bucket_name, local_blob_path, blob_path, **kwargs)
 
-    def _copy_remote_to_local(self, source_path, dest_path):
+    def _copy_remote_to_local(self, source_path, dest_path, **kwargs):
         scheme, bucket_name, blob_path = parse_path_uri(source_path)
         client = self._get_client(scheme)
-        client.download(bucket_name, blob_path, dest_path)
+        client.download(bucket_name, blob_path, dest_path, **kwargs)
 
-    def _copy_remote_to_remote(self, source_path, dest_path, filter_options=None):
+    def _copy_remote_to_remote(self, source_path, dest_path, **kwargs):
         source_scheme, source_bucket_name, source_blob_path = parse_path_uri(
             source_path
         )
@@ -112,8 +118,8 @@ class CloudStorageSlim:
         local_blob_path = os.path.join(tmp_workspace_folder_path, unique_local_filename)
 
         try:
-            if filter_options is not None:
-                include = filter_options.get("include", None)
+            if 'filter_options' in kwargs:
+                include = kwargs['filter_options'].get('include', None)
                 if include is not None:
                     search_path = f"{source_blob_path}{include}"
                     source_blob_path = source_client.get_first_blob(
@@ -125,15 +131,15 @@ class CloudStorageSlim:
                         )
 
             source_client.download(
-                source_bucket_name, source_blob_path, local_blob_path
+                source_bucket_name, source_blob_path, local_blob_path, **kwargs
             )
 
-            dest_client.upload(dest_bucket_name, local_blob_path, dest_blob_path)
+            dest_client.upload(dest_bucket_name, local_blob_path, dest_blob_path, **kwargs)
         finally:
             if os.path.exists(local_blob_path):
                 os.remove(local_blob_path)
 
-    def copyto(self, source_path, dest_path, filter_options=None):
+    def copyto(self, source_path, dest_path, **kwargs):
         """
         limitaions: only support single file copy right now
         """
@@ -147,19 +153,19 @@ class CloudStorageSlim:
                 # dest is remote file
                 check_scheme(dest_path)
                 # local to remote
-                self._copy_local_to_remote(source_path, dest_path)
+                self._copy_local_to_remote(source_path, dest_path, **kwargs)
         else:
             # source is remote file
             check_scheme(source_path)
             if check_dest_local_file(dest_path):
                 # dest is local file
                 # remote to local
-                self._copy_remote_to_local(source_path, dest_path)
+                self._copy_remote_to_local(source_path, dest_path, **kwargs)
             else:
                 # dest is remote file
                 check_scheme(dest_path)
                 # remote to remote
-                self._copy_remote_to_remote(source_path, dest_path, filter_options)
+                self._copy_remote_to_remote(source_path, dest_path, **kwargs)
 
     def ls(self, remote_path, include=""):
         scheme, bucket_name, blob_path = parse_path_uri(remote_path)

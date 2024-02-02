@@ -22,7 +22,7 @@ class AzureStorage(CloudStorage):
             )
         )
 
-    def download(self, container_name, remote_blob_path, local_blob_path):
+    def download(self, container_name, remote_blob_path, local_blob_path, **kwargs):
         blob_client = self.blob_service_client.get_blob_client(
             container=container_name, blob=remote_blob_path
         )
@@ -30,7 +30,7 @@ class AzureStorage(CloudStorage):
         with open(local_blob_path, "wb") as download_file:
             download_file.write(blob_client.download_blob().readall())
 
-    def upload(self, container_name, local_blob_path, remote_blob_path):
+    def upload(self, container_name, local_blob_path, remote_blob_path, **kwargs):
         blob_client = self.blob_service_client.get_blob_client(
             container=container_name, blob=remote_blob_path
         )
@@ -52,3 +52,6 @@ class AzureStorage(CloudStorage):
             return None
 
         return blobs_list[0].name
+
+    def get_navite_client(self):
+        return self.blob_service_client
