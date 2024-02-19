@@ -6,11 +6,11 @@ from urllib.parse import urlparse
 logger = logging.getLogger(__name__)
 
 
-def check_scheme(path_uri):
+def check_remote_file(path_uri):
     path_scheme = urlparse(path_uri).scheme
     if path_scheme == "":
         raise ValueError(f"Invalid path uri: {path_uri}")
-    if ["gs", "s3", "gcs", "az", "oss"].count(path_scheme) == 0:
+    if ["gs", "s3", "gcs", "az", "oss", "http", "https"].count(path_scheme) == 0:
         raise ValueError(f"Unsupported scheme: {path_scheme}")
 
 

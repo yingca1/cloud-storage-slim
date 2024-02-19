@@ -4,7 +4,7 @@ import shutil
 import importlib.util
 from cloud_storage_slim.utils import (
     parse_path_uri,
-    check_scheme,
+    check_remote_file,
     check_source_local_file,
     check_dest_local_file,
 )
@@ -15,6 +15,12 @@ class CloudStorage:
         raise NotImplementedError
 
     def upload(self, bucket_name, local_blob_path, remote_blob_path, **kwargs):
+        raise NotImplementedError
+
+    def download_uri(self, remote_blob_uri, local_blob_path, **kwargs):
+        raise NotImplementedError
+
+    def upload_uri(self, local_blob_path, remote_blob_uri, **kwargs):
         raise NotImplementedError
 
     def list_blobs(self, bucket_name, pattern):
@@ -39,6 +45,7 @@ class CloudStorageSlim:
         self.az_client = None
         self.oss_client = None
         self.s3_client = None
+        self.http_client = None
 
     def _setup_tmp_workspace(self):
         tmp_workspace_folder_path = os.path.join(
@@ -59,27 +66,27 @@ class CloudStorageSlim:
         if scheme == "gs" or scheme == "gcs":
             if self.gcs_client is None:
                 from .google_cloud_storage import GoogleCloudStorage
-
                 self.gcs_client = GoogleCloudStorage()
             return self.gcs_client
         elif scheme == "az":
             if self.az_client is None:
                 from .azure_storage import AzureStorage
-
                 self.az_client = AzureStorage()
             return self.az_client
         elif scheme == "oss":
             if self.oss_client is None:
                 from .alibaba_cloud_oss import AlibabaCloudOSS
-
                 self.oss_client = AlibabaCloudOSS()
             return self.oss_client
         elif scheme == "s3":
             if self.s3_client is None:
                 from .amazon_s3 import AmazonS3Storage
-
                 self.s3_client = AmazonS3Storage()
             return self.s3_client
+        elif scheme == "http" or scheme == "https":
+            from .http_client import HttpRemoteFile
+            self.http_client = HttpRemoteFile()
+            return self.http_client
         else:
             raise ValueError(f"Unknown scheme: {scheme}")
 
@@ -96,12 +103,18 @@ class CloudStorageSlim:
         local_blob_path = os.path.abspath(source_path)
         scheme, bucket_name, blob_path = parse_path_uri(dest_path)
         client = self._get_client(scheme)
-        client.upload(bucket_name, local_blob_path, blob_path, **kwargs)
+        if scheme == 'http' or scheme == 'https':
+            client.upload_uri(local_blob_path, dest_path, **kwargs)
+        else:
+            client.upload(bucket_name, local_blob_path, blob_path, **kwargs)
 
     def _copy_remote_to_local(self, source_path, dest_path, **kwargs):
         scheme, bucket_name, blob_path = parse_path_uri(source_path)
         client = self._get_client(scheme)
-        client.download(bucket_name, blob_path, dest_path, **kwargs)
+        if scheme == 'http' or scheme == 'https':
+            client.download_uri(source_path, dest_path, **kwargs)
+        else:
+            client.download(bucket_name, blob_path, dest_path, **kwargs)
 
     def _copy_remote_to_remote(self, source_path, dest_path, **kwargs):
         source_scheme, source_bucket_name, source_blob_path = parse_path_uri(
@@ -130,11 +143,19 @@ class CloudStorageSlim:
                             f"Cannot find blob with prefix {search_path} from {source_scheme}://{source_bucket_name}"
                         )
 
-            source_client.download(
-                source_bucket_name, source_blob_path, local_blob_path, **kwargs
-            )
+            if source_scheme == 'http' or source_scheme == 'https':
+                source_client.download_uri(
+                    source_path, local_blob_path, **kwargs
+                )
+            else:
+                source_client.download(
+                    source_bucket_name, source_blob_path, local_blob_path, **kwargs
+                )
 
-            dest_client.upload(dest_bucket_name, local_blob_path, dest_blob_path, **kwargs)
+            if dest_scheme == 'http' or dest_scheme == 'https':
+                dest_client.upload_uri(local_blob_path, dest_path, **kwargs)
+            else:
+                dest_client.upload(dest_bucket_name, local_blob_path, dest_blob_path, **kwargs)
         finally:
             if os.path.exists(local_blob_path):
                 os.remove(local_blob_path)
@@ -143,27 +164,24 @@ class CloudStorageSlim:
         """
         limitaions: only support single file copy right now
         """
-        if check_source_local_file(source_path):
-            # source is local file
+        if check_source_local_file(source_path): # source is local file
             if check_dest_local_file(dest_path):
                 # dest is local file
                 # local to local
                 shutil.copyfile(source_path, dest_path)
             else:
-                # dest is remote file
-                check_scheme(dest_path)
+                check_remote_file(dest_path) # dest should be valid remote file
                 # local to remote
                 self._copy_local_to_remote(source_path, dest_path, **kwargs)
         else:
-            # source is remote file
-            check_scheme(source_path)
+            check_remote_file(source_path) # source should be valid remote file
+
             if check_dest_local_file(dest_path):
                 # dest is local file
                 # remote to local
                 self._copy_remote_to_local(source_path, dest_path, **kwargs)
             else:
-                # dest is remote file
-                check_scheme(dest_path)
+                check_remote_file(dest_path) # dest should be valid remote file
                 # remote to remote
                 self._copy_remote_to_remote(source_path, dest_path, **kwargs)
 
