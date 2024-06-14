@@ -10,7 +10,13 @@ class HttpRemoteFile(CloudStorage):
         self.requests_session = storage_module.Session()
 
     def download_uri(self,remote_blob_uri, local_blob_path, **kwargs):
-        response = self.requests_session.get(remote_blob_uri, stream=True, verify=False)
+        """
+        https://requests.readthedocs.io/en/latest/user/advanced/#timeouts
+        """
+        enabled_options = ["timeout"]
+        download_options = {k: v for k, v in kwargs.items() if k in enabled_options}
+
+        response = self.requests_session.get(remote_blob_uri, stream=True, verify=False, **download_options)
 
         with open(local_blob_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
