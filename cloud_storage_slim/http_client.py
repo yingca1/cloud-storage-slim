@@ -32,3 +32,15 @@ class HttpRemoteFile(CloudStorage):
 
     def get_native_client(self):
         return self.requests_session
+
+    def download(self, bucket_name, remote_blob_path, local_blob_path, **kwargs):
+        raise NotImplementedError("HttpRemoteFile does not support downloading from bucket")
+    
+    def upload(self, bucket_name, local_blob_path, remote_blob_path, **kwargs):
+        raise NotImplementedError("HttpRemoteFile does not support uploading to bucket")
+    
+    def list_blobs(self, bucket_name, pattern):
+        raise NotImplementedError("HttpRemoteFile does not support listing blobs")
+    
+    def get_first_blob(self, bucket_name, pattern):
+        raise NotImplementedError("HttpRemoteFile does not support getting the first blob")

@@ -53,6 +53,7 @@ class CloudStorageSlim:
         self.oss_client = None
         self.s3_client = None
         self.http_client = None
+        self.toc_client = None
 
     def _setup_tmp_workspace(self):
         tmp_workspace_folder_path = os.path.join(
@@ -90,6 +91,11 @@ class CloudStorageSlim:
                 from .amazon_s3 import AmazonS3Storage
                 self.s3_client = AmazonS3Storage()
             return self.s3_client
+        elif scheme == "toc":
+            if self.toc_client is None:
+                from .byteplus_torch_object_storage import TorchObjectStorage
+                self.toc_client = TorchObjectStorage()
+            return self.toc_client
         elif scheme == "http" or scheme == "https":
             from .http_client import HttpRemoteFile
             self.http_client = HttpRemoteFile()
@@ -105,6 +111,8 @@ class CloudStorageSlim:
         self.gcs_client = None
         self.az_client = None
         self.oss_client = None
+        self.s3_client = None
+        self.toc_client = None
 
     def _copy_local_to_remote(self, source_path, dest_path, **kwargs):
         local_blob_path = os.path.abspath(source_path)

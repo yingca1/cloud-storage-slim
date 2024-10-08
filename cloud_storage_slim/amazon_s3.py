@@ -22,3 +22,9 @@ class AmazonS3Storage(CloudStorage):
 
     def get_native_client(self):
         return self.s3_client
+
+    def download_uri(self, remote_blob_uri, local_blob_path, **kwargs):
+        raise NotImplementedError("Amazon S3 does not support downloading from URI")
+
+    def upload_uri(self, local_blob_path, remote_blob_uri, **kwargs):
+        raise NotImplementedError("Amazon S3 does not support uploading to URI")

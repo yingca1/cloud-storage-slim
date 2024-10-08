@@ -34,3 +34,9 @@ class AlibabaCloudOSS(CloudStorage):
 
     def get_native_client(self):
         return self.auth
+
+    def download_uri(self, remote_blob_uri, local_blob_path, **kwargs):
+        raise NotImplementedError("Alibaba Cloud OSS does not support downloading from URI")
+    
+    def upload_uri(self, local_blob_path, remote_blob_uri, **kwargs):
+        raise NotImplementedError("Alibaba Cloud OSS does not support uploading to URI")

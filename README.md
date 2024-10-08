@@ -1,9 +1,6 @@
 # Cloud Storage Slim
 
-## Principles
-
-- No complex operations, just focus on simple things.
-- Inspired by [rclone](https://rclone.org/).
+Make operations across various cloud storage platforms simple.
 
 ## Installation
 
@@ -48,6 +45,7 @@ pip install google-cloud-storage
 
 - [Boto3 Configuring credentials](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html#environment-variables)
 - [Using environment variables](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html#using-environment-variables)
+- `AWS_ENDPOINT_URL_S3`
 - `AWS_DEFAULT_REGION`
 - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
 - `AWS_SESSION_TOKEN`
@@ -59,8 +57,7 @@ pip install boto3
 
 ### Azure Blob Storage
 
-- [Manage storage account access keys
-](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-keys-manage?tabs=azure-portal#view-account-access-keys)
+- [Manage storage account access keys](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-keys-manage?tabs=azure-portal#view-account-access-keys)
 - `AZURE_STORAGE_ACCOUNT_NAME`, `AZURE_STORAGE_ACCOUNT_KEY`
 
 ```bash
@@ -77,6 +74,24 @@ pip install azure-storage-blob azure-identity
 
 ```bash
 pip install oss2
+```
+
+### Byteplus / Volcengine - Torch Object Storage
+
+#### S3 Compatible API
+
+- Byteplus [Region and Endpoint](https://docs.byteplus.com/en/docs/tos/docs-region-and-endpoint)
+- Byteplus [Compatibility with Amazon S3](https://docs.byteplus.com/en/docs/tos/docs-compatibility-with-amazon-s3)
+
+#### TOC SDK
+
+- `TOC_ENDPOINT_URL`
+- `TOC_ACCESS_KEY_ID` `TOC_SECRET_ACCESS_KEY`
+- `TOC_DEFAULT_REGION`
+- [ve-tos-python-sdk](https://github.com/volcengine/ve-tos-python-sdk)
+
+```bash
+pip install tos
 ```
 
 ## Test cases

@@ -37,3 +37,10 @@ class GoogleCloudStorage(CloudStorage):
 
     def get_native_client(self):
         return self.storage_client
+
+    def download_uri(self, remote_blob_uri, local_blob_path, **kwargs):
+        raise NotImplementedError("Google Cloud Storage does not support downloading from URI")
+
+    def upload_uri(self, local_blob_path, remote_blob_uri, **kwargs):
+        raise NotImplementedError("Google Cloud Storage does not support uploading to URI")
+    
