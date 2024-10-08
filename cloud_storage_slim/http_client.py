@@ -9,7 +9,7 @@ class HttpRemoteFile(CloudStorage):
         storage_module = importlib.import_module("requests")
         self.requests_session = storage_module.Session()
 
-    def download_uri(self,remote_blob_uri, local_blob_path, **kwargs):
+    def download_uri(self, remote_blob_uri, local_blob_path, **kwargs):
         """
         https://requests.readthedocs.io/en/latest/user/advanced/#timeouts
         """
@@ -30,5 +30,5 @@ class HttpRemoteFile(CloudStorage):
                 self.requests_session.headers.update(headers)
             self.requests_session.put(remote_blob_uri, data=f, verify=False)
 
-    def get_navite_client(self):
+    def get_native_client(self):
         return self.requests_session

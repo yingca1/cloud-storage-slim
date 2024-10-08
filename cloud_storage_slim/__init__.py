@@ -2,6 +2,7 @@ import os
 import uuid
 import shutil
 import importlib.util
+from abc import ABC, abstractmethod
 from cloud_storage_slim.utils import (
     parse_path_uri,
     check_remote_file,
@@ -9,28 +10,34 @@ from cloud_storage_slim.utils import (
     check_dest_local_file,
 )
 
-
-class CloudStorage:
+class CloudStorage(ABC):
+    @abstractmethod
     def download(self, bucket_name, remote_blob_path, local_blob_path, **kwargs):
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def upload(self, bucket_name, local_blob_path, remote_blob_path, **kwargs):
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def download_uri(self, remote_blob_uri, local_blob_path, **kwargs):
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def upload_uri(self, local_blob_path, remote_blob_uri, **kwargs):
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def list_blobs(self, bucket_name, pattern):
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def get_first_blob(self, bucket_name, pattern):
-        raise NotImplementedError
+        pass
 
-    def get_navite_client(self):
-        raise NotImplementedError
+    @abstractmethod
+    def get_native_client(self):
+        pass
 
 
 class CloudStorageSlim:
@@ -91,7 +98,7 @@ class CloudStorageSlim:
             raise ValueError(f"Unknown scheme: {scheme}")
 
     def get_client(self, scheme):
-        return self._get_client(scheme).get_navite_client()
+        return self._get_client(scheme).get_native_client()
 
     def destroy(self):
         self._teardown_tmp_workspace()

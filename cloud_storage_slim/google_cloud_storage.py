@@ -35,5 +35,5 @@ class GoogleCloudStorage(CloudStorage):
             return None
         return blobs_list[0].name
 
-    def get_navite_client(self):
+    def get_native_client(self):
         return self.storage_client

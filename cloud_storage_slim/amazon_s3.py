@@ -20,5 +20,5 @@ class AmazonS3Storage(CloudStorage):
         blobs_list = self.list_blobs(bucket_name, pattern)
         return blobs_list[0] if blobs_list else None
 
-    def get_navite_client(self):
+    def get_native_client(self):
         return self.s3_client

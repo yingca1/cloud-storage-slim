@@ -32,5 +32,5 @@ class AlibabaCloudOSS(CloudStorage):
                 return obj.key
         return None
 
-    def get_navite_client(self):
+    def get_native_client(self):
         return self.auth
