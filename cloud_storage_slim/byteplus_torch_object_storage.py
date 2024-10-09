@@ -6,10 +6,10 @@ from cloud_storage_slim import CloudStorage
 class TorchObjectStorage(CloudStorage):
     def __init__(self) -> None:
         storage_module = importlib.import_module("tos")
-        ak = os.getenv("TOC_ACCESS_KEY_ID", None)
-        sk = os.getenv("TOC_SECRET_ACCESS_KEY", None)
-        endpoint = os.getenv("TOC_ENDPOINT_URL", None)
-        region = os.getenv("TOC_DEFAULT_REGION", None)
+        ak = os.getenv("TOS_ACCESS_KEY_ID", None)
+        sk = os.getenv("TOS_SECRET_ACCESS_KEY", None)
+        endpoint = os.getenv("TOS_ENDPOINT_URL", None)
+        region = os.getenv("TOS_DEFAULT_REGION", None)
         self.storage_client = storage_module.TosClientV2(ak, sk, endpoint, region)
 
     def download(self, bucket_name, remote_blob_path, local_blob_path, **kwargs):

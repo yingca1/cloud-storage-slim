@@ -83,11 +83,11 @@ pip install oss2
 - Byteplus [Region and Endpoint](https://docs.byteplus.com/en/docs/tos/docs-region-and-endpoint)
 - Byteplus [Compatibility with Amazon S3](https://docs.byteplus.com/en/docs/tos/docs-compatibility-with-amazon-s3)
 
-#### TOC SDK
+#### TOS SDK
 
-- `TOC_ENDPOINT_URL`
-- `TOC_ACCESS_KEY_ID` `TOC_SECRET_ACCESS_KEY`
-- `TOC_DEFAULT_REGION`
+- `TOS_ENDPOINT_URL`
+- `TOS_ACCESS_KEY_ID` `TOS_SECRET_ACCESS_KEY`
+- `TOS_DEFAULT_REGION`
 - [ve-tos-python-sdk](https://github.com/volcengine/ve-tos-python-sdk)
 
 ```bash
