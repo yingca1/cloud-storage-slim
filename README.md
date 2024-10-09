@@ -28,6 +28,7 @@ cloud_storage.copyto('gs://bucket1/object1', 'az://bucket2/object2')
 - [x] Azure Blob Storage
 - [x] AlibabaCloud / Aliyun OSS
 - [x] AWS S3
+- [x] Byteplus & Volcengine - Torch Object Storage
 
 ## Credentials
 
@@ -76,12 +77,16 @@ pip install azure-storage-blob azure-identity
 pip install oss2
 ```
 
-### Byteplus / Volcengine - Torch Object Storage
+### Byteplus & Volcengine - Torch Object Storage
+
+- Byteplus [Region and Endpoint](https://docs.byteplus.com/en/docs/tos/docs-region-and-endpoint)
+- Volcengine [Region and Endpoint](https://www.volcengine.com/docs/6349/107356)
 
 #### S3 Compatible API
 
-- Byteplus [Region and Endpoint](https://docs.byteplus.com/en/docs/tos/docs-region-and-endpoint)
 - Byteplus [Compatibility with Amazon S3](https://docs.byteplus.com/en/docs/tos/docs-compatibility-with-amazon-s3)
+- Volcengine [Compatibility with Amazon S3](https://www.volcengine.com/docs/6349/147050)
+
 
 #### TOS SDK
 
