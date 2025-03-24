@@ -60,7 +60,7 @@ class CloudStorageSlim:
             os.path.expanduser("~"), ".cloud_storage_slim"
         )
         if not os.path.exists(tmp_workspace_folder_path):
-            os.makedirs(tmp_workspace_folder_path)
+            os.makedirs(tmp_workspace_folder_path, exist_ok=True)
         return tmp_workspace_folder_path
 
     def _teardown_tmp_workspace(self):
